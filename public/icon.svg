@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .bg{fill:#221E1A}
+    .fg{fill:#e6c487}
+    @media(prefers-color-scheme:light){.bg{fill:#FDFBF7}.fg{fill:#221E1A}}
+  </style>
+  <rect class="bg" width="32" height="32" rx="4"/>
+  <!-- Stylised hart (deer) silhouette -->
+  <g class="fg">
+    <!-- Antler left -->
+    <path d="M10 4 L8 7 L9.5 7 L8.5 10 L10 9 L10.5 12 L12 10 L11 13 L13 12" stroke="currentColor" stroke-width="0" fill="#e6c487"/>
+    <!-- Simplified deer head/body mark: "WH" initials in brand style -->
+    <text x="16" y="22" font-family="Georgia,serif" font-style="italic" font-size="14" text-anchor="middle" fill="#e6c487">WH</text>
+  </g>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "name": "Upstairs Social",
+  "short_name": "Upstairs Social",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#140E1F",
+  "theme_color": "#E0115F",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

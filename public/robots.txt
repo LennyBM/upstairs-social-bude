@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://upstairs-social-bude.vercel.app/sitemap.xml
