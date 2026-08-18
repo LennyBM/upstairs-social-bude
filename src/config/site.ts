@@ -1,11 +1,11 @@
-import type { SiteConfig, NavLink } from './types';
+import type { SiteConfig, NavLink } from './types.ts';
 
 export const site: SiteConfig = {
   "slug": "upstairs-social-bude",
   "name": "Upstairs Social",
   "shortName": "Upstairs Social",
   "tagline": "A speakeasy-style social bar in the heart of Bude",
-  "intro": "Casual bar food / takeaway-style menu served alongside the bar. Budget-friendly (listed price range up to around £8 per person). Confirm whether the current food offer is running under the Upstairs So",
+  "intro": "Casual bar food / takeaway-style menu served alongside the bar. Budget-friendly (listed price range up to around £8 per person). Confirm whether the current food offer is running under the Upstairs Social brand.",
   "type": "Bar",
   "established": "",
   "siteUrl": "https://upstairs-social-bude.vercel.app",
@@ -170,22 +170,24 @@ export const site: SiteConfig = {
   "images": [
     "img-00.jpg",
     "img-01.jpg",
-    "img-02.jpg",
-    "img-03.jpg",
-    "img-04.jpg",
-    "img-05.jpg",
-    "img-06.jpg"
+    "img-04.jpg"
   ],
-  "hero": "img-00.jpg",
+  "hero": "img-01.jpg",
   "featured": [
     "img-01.jpg",
-    "img-02.jpg",
-    "img-03.jpg",
     "img-04.jpg",
-    "img-05.jpg",
-    "img-06.jpg"
+    "img-00.jpg"
   ],
   "videoUrls": [],
+  "focal": {
+    "img-00.jpg": "40% 60%",
+    "img-04.jpg": "25% 35%"
+  },
+  "design": {
+    "display": "coast",
+    "hero": "split",
+    "order": "locals-led"
+  },
   "theme": {
     "mode": "dark",
     "primary": "#E0115F",

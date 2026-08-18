@@ -1,73 +1,125 @@
 import { Link } from 'react-router-dom';
 import { site, navLinks } from '../config/site';
+import { SocialLinks } from './Social';
 
 export function Footer() {
-  const year = 2026;
+  const year = new Date().getFullYear();
   return (
-    <footer className="bg-ink text-white/80 mt-0">
-      <div className="container-x py-16 grid gap-10 md:grid-cols-4">
-        <div className="md:col-span-1">
-          <p className="font-headline text-2xl text-white">{site.name}</p>
-          <p className="mt-3 text-sm leading-relaxed text-white/70">{site.tagline}</p>
+    <footer className="on-dark bg-footer">
+      {/*
+        Two columns on mobile, not one. The four blocks stacked to a 1,900px
+        footer on a 390px screen: seven nav rows at the 48px floor alone are
+        336px, and the hours list is seven more. Paired side by side, the
+        column count carries what the scroll used to. The brand block still
+        spans the full width because a tagline reads badly in a half column.
+      */}
+      <div className="container-x py-16 grid gap-x-6 gap-y-10 grid-cols-2 md:grid-cols-4">
+        <div className="col-span-2 md:col-span-1">
+          <p className="logotype t-h3">{site.name}</p>
+          <p className="mt-3 t-small text-(color:--text-on-dark-secondary)">{site.tagline}</p>
           {site.rating && (
-            <p className="mt-4 text-sm text-white/70">★ {site.rating} · {site.reviewsCount}+ reviews</p>
+            <p className="mt-4 t-small text-(color:--text-on-dark-secondary)">
+              ★ <span className="nums">{site.rating}</span> · <span className="nums">{site.reviewsCount}</span>+ reviews
+            </p>
           )}
         </div>
 
         <div>
-          <h3 className="text-white text-sm uppercase tracking-widest font-sans not-font-semibold mb-4">Explore</h3>
-          <ul className="space-y-2 text-sm">
+          <h3 className="eyebrow on-dark mb-4">Explore</h3>
+          {/*
+            §14.3 48px floor. These seven links measured 19px each, and unlike a
+            lone `tel:` in a wide row they STACK, so the `py-4 -my-4` idiom used
+            elsewhere in the estate is wrong here: a 48px hit box on a 29.75px
+            row pitch would overlap its neighbour by 18px and a thumb aimed at
+            the bottom of "Menu" would open "Stay". Where targets stack, the
+            pitch has to carry the hit box, so the row IS the target — `min-h-12`
+            for the floor, `space-y-2` removed so pitch and hit box are both 48
+            and adjacent rows touch without overlapping. The link is a block, so
+            the full column width is live and a thumb landing beside a short
+            label ("Stay" is 31px of text) still lands on the link.
+            Deliberate consequence: this column grows 200px → 336px.
+          */}
+          <ul className="t-small text-(color:--text-on-dark-secondary)">
             {navLinks.map((l) => (
-              <li key={l.to}><Link to={l.to} className="hover:text-white transition-colors">{l.label}</Link></li>
+              <li key={l.to}><Link to={l.to} className="flex items-center min-h-12 hover:text-(color:--text-on-dark) transition-colors duration-(--dur-fast) ease-inout">{l.label}</Link></li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h3 className="text-white text-sm uppercase tracking-widest font-sans not-font-semibold mb-4">Find Us</h3>
-          <address className="not-text-sm space-y-1 text-white/70">
+          <h3 className="eyebrow on-dark mb-4">Find Us</h3>
+          <address className="not-italic t-small space-y-1 text-(color:--text-on-dark-secondary)">
             {site.addressLines.map((l) => <div key={l}>{l}</div>)}
             <div>{site.town}, {site.county}</div>
             <div>{site.postcode}</div>
           </address>
-          <a href={site.phoneHref} className="block mt-3 text-sm text-white hover:underline">{site.phone}</a>
-          {site.email && <a href={`mailto:${site.email}`} className="block text-sm text-white/80 hover:underline break-all">{site.email}</a>}
-          <div className="flex gap-3 mt-4">
-            {site.socials.facebook && <SocialIcon href={site.socials.facebook} label="Facebook" d="M13 10h3l.5-3H13V5.5c0-.9.3-1.5 1.6-1.5H17V1.2C16.6 1.1 15.4 1 14.1 1 11.4 1 9.7 2.6 9.7 5.2V7H7v3h2.7v8H13z" />}
-            {site.socials.instagram && <SocialIcon href={site.socials.instagram} label="Instagram" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zM12 7.4a4.6 4.6 0 100 9.2 4.6 4.6 0 000-9.2zm0 7.6a3 3 0 110-6 3 3 0 010 6zm5.8-7.8a1.1 1.1 0 11-2.2 0 1.1 1.1 0 012.2 0z" />}
-          </div>
+          {/*
+            The estate's primary conversion, and it measured 342 x 21.75px. The
+            phone and the mail link stack directly on one another wherever a
+            config sets `email`, so again the hit box has to be the row,
+            not padding hung off a 22px line: `min-h-12` makes each a 48px row
+            that sits flush against its neighbour instead of eating into it.
+            The old `mt-3` is gone because the row's own 13px of internal space
+            above the number replaces it, and `mt-4` under the icons becomes
+            `mt-0.5` for the same reason. Both numbers are measured, not
+            guessed: the gap from the address to the number reads 13.00 → 14.13
+            and the gap from the number to the icons 17.75 → 16.88, so nothing
+            in this column moves by more than 1.2px.
+          */}
+          <a href={site.phoneHref} className="flex items-center min-h-12 t-small nums hover:underline">{site.phone}</a>
+          {site.email && <a href={`mailto:${site.email}`} className="flex items-center min-h-12 t-small text-(color:--text-on-dark-secondary) hover:underline break-all">{site.email}</a>}
+          {/* §11 of nobody's spec: the TripAdvisor link is set on all 38 venues and
+              was rendered by nothing. For a pub it is often the strongest proof it
+              has. WhatsApp joins the row wherever the venue's number is a mobile. */}
+          <SocialLinks className="mt-0.5" />
         </div>
 
-        <div>
-          <h3 className="text-white text-sm uppercase tracking-widest font-sans not-font-semibold mb-4">Opening Hours</h3>
-          <ul className="space-y-1 text-sm text-white/70">
+        {/*
+          Full width on mobile, one column from md. In a half-width mobile cell
+          every row wrapped: "Monday 07:30-" then "21:00" on its own line, seven
+          times. Opening hours are the most-read thing in a pub footer, so the
+          twin grid pays for itself on the nav and address columns and gives this
+          one its width back. `whitespace-nowrap` stops the en dash offering a
+          break point inside a single time range.
+        */}
+        <div className="col-span-2 md:col-span-1">
+          <h3 className="eyebrow on-dark mb-4">Opening Hours</h3>
+          <ul className="space-y-1 t-small text-(color:--text-on-dark-secondary)">
             {site.openingHours.map((h) => (
-              <li key={h.day} className="flex justify-between gap-3"><span>{h.day}</span><span className="text-white/90">{h.hours}</span></li>
+              <li key={h.day} className="flex justify-between gap-3">
+                <span>{h.day}</span>
+                <span className="nums text-(color:--text-on-dark) whitespace-nowrap">{h.hours}</span>
+              </li>
             ))}
           </ul>
         </div>
       </div>
 
       <div className="border-t border-white/10">
-        <div className="container-x py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <p>© {year} {site.name}. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link to="/privacy" className="hover:text-white/80">Privacy</Link>
-            <Link to="/terms" className="hover:text-white/80">Terms</Link>
-            <Link to="/cookies" className="hover:text-white/80">Cookies</Link>
-            <Link to="/accessibility" className="hover:text-white/80">Accessibility</Link>
+        <div className="container-x py-6 flex flex-col md:flex-row items-center justify-between gap-4 t-caption text-(color:--text-on-dark-muted)">
+          <p>© <span className="nums">{year}</span> {site.name}. All rights reserved.</p>
+          {/*
+            These four measured 18.19px tall and 39-79px wide. They sit SIDE BY
+            SIDE, so here the padding-plus-negative-margin idiom is the right
+            one: `py-4 -my-4` lifts each to 50.19px while the row keeps its
+            18.19px height, and `px-2` against a zero column gap lifts the two
+            narrow ones over 48px wide while leaving the visual gap between
+            labels at the 16px it already was. `-mx-2` on the wrapper puts the
+            outer text edges back where they were, so nothing moves. The parent
+            gap goes 3 → 4 (12px → 16px) so the taller boxes stop flush against
+            the copyright line instead of 4px inside it. `gap-y-8` is insurance:
+            these labels fit one row at 390px with 78px to spare today, but if a
+            future config ever wrapped them, 32px of row gap is exactly the two
+            16px paddings, so wrapped rows would touch and never overlap.
+          */}
+          <div className="flex flex-wrap gap-y-8 -mx-2">
+            <Link to="/privacy" className="px-2 py-4 -my-4 hover:text-(color:--text-on-dark)">Privacy</Link>
+            <Link to="/terms" className="px-2 py-4 -my-4 hover:text-(color:--text-on-dark)">Terms</Link>
+            <Link to="/cookies" className="px-2 py-4 -my-4 hover:text-(color:--text-on-dark)">Cookies</Link>
+            <Link to="/accessibility" className="px-2 py-4 -my-4 hover:text-(color:--text-on-dark)">Accessibility</Link>
           </div>
         </div>
       </div>
     </footer>
-  );
-}
-
-function SocialIcon({ href, label, d }: { href: string; label: string; d: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-      className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d={d} /></svg>
-    </a>
   );
 }

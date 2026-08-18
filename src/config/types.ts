@@ -7,7 +7,14 @@ export interface OpeningHour { day: string; hours: string; }
 export interface MenuItem { name: string; desc?: string; price?: string; }
 export interface MenuGroup { title: string; note?: string; items: MenuItem[]; }
 
-export interface Room { name: string; desc: string; price?: string; image?: string; }
+/**
+ * A CSS `object-position` value for an image reference, e.g. `'50% 35%'`.
+ * Spec §10 item 1: focal point per image, default `'50% 50%'`, overridden per venue.
+ * Centre crop is why bad photos look catastrophic rather than merely ordinary.
+ */
+export type Focal = string;
+
+export interface Room { name: string; desc: string; price?: string; image?: string; focal?: Focal; }
 
 export interface SundayLunch { summary?: string; priceFrom?: string; items: MenuItem[]; }
 export interface Booking { url?: string; phone?: string; platform?: string; }
@@ -27,6 +34,34 @@ export interface Theme {
   bg: string;        // page background
   surface: string;   // card background
   contrast: string;  // text colour that sits on top of `primary`
+}
+
+/**
+ * §1.1 display treatment. `inn` = Newsreader roman h1/h2 (hotels, coaching inns,
+ * historic B&Bs). `coast` = Inter (bars, surf, food-led, contemporary venues).
+ * Written to `<html data-display="...">`.
+ */
+export type DisplayTreatment = 'inn' | 'coast';
+
+/**
+ * §8 section archetypes A / B and §10 item 4. `anchor` = full-bleed media with the
+ * text overlaid. `split` = 7/5 asymmetric with media bleeding off the right edge.
+ * `typographic` = the no-photo route for venues whose imagery fails review.
+ */
+export type HeroArchetype = 'anchor' | 'split' | 'typographic';
+
+/** §11 homepage section sequence. */
+export type HomeOrder = 'rooms-led' | 'food-led' | 'locals-led';
+
+/**
+ * §11 variation axis. Three selectors, assigned per venue, that stop 38 sites with
+ * identical layout grammar reading as clones.
+ * Rule: no two venues in the same town may share the same `display` + `order` pair.
+ */
+export interface SiteDesign {
+  display: DisplayTreatment;
+  hero: HeroArchetype;
+  order: HomeOrder;
 }
 
 export interface SiteConfig {
@@ -66,6 +101,13 @@ export interface SiteConfig {
   openingHours: OpeningHour[];
   hoursNote?: string;
 
+  /**
+   * §9.4 `<NoticeBanner>`: one short line, dismissible, under the header
+   * ("Kitchen closed this Tuesday"). Volatile field per §9.5 — omitted or empty
+   * renders nothing, which is the defined empty state.
+   */
+  notice?: string;
+
   history: string[];        // paragraphs for the story page
   usps: string[];           // short selling points
 
@@ -93,6 +135,20 @@ export interface SiteConfig {
   hero: string;             // hero image filename
   featured: string[];       // 3 images used in home highlights
   videoUrls?: string[];
+
+  /**
+   * §10 item 1. `object-position` per image reference, keyed by the filename used in
+   * `images` / `hero` / `featured` / `rooms[].image`. Any filename absent from this
+   * map falls back to `'50% 50%'`.
+   * Precedence for a room card: `room.focal` → `focal[room.image]` → `'50% 50%'`.
+   */
+  focal?: Record<string, Focal>;
+
+  /** §10 item 1. Focal point for the hero crop. Wins over `focal[hero]`. */
+  heroFocal?: Focal;
+
+  /** §11 variation axis: display treatment, hero archetype, homepage order. */
+  design: SiteDesign;
 
   theme: Theme;
   seoKeywords: string[];

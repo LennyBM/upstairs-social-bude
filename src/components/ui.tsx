@@ -1,14 +1,31 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
+/** Token reference, not a literal colour. See spec §3 on-dark roles. */
+const ON_DARK_SECONDARY: CSSProperties = { color: 'var(--text-on-dark-secondary)' };
+
+const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
+
+/**
+ * Section heading. Left aligned by default (spec §8: text-center is banned at
+ * section level; centring is opt-in for cards and archetype E only).
+ * Measures are carried by .t-h2 (22ch) and .t-lead (46ch), not by a wrapper width.
+ */
 export function SectionHeading({
-  eyebrow, title, sub, center = true, light = false,
+  eyebrow, title, sub, center = false, light = false,
 }: { eyebrow?: string; title: string; sub?: string; center?: boolean; light?: boolean }) {
   return (
-    <div className={`${center ? 'text-center mx-auto' : ''} max-w-2xl reveal`}>
-      {eyebrow && <p className="eyebrow mb-3" style={light ? { color: '#fff' } : undefined}>{eyebrow}</p>}
-      <h2 className={`h-section ${light ? 'text-white' : 'text-ink'}`}>{title}</h2>
-      <hr className={`rule mt-5 ${center ? 'mx-auto' : ''}`} />
-      {sub && <p className={`lead mt-5 ${light ? 'text-white/80' : ''}`}>{sub}</p>}
+    <div className={cx('reveal', center && 'text-center mx-auto', light && 'on-dark')}>
+      {eyebrow && (
+        <p className={cx('eyebrow', center && 'mx-auto')} style={light ? ON_DARK_SECONDARY : undefined}>
+          {eyebrow}
+        </p>
+      )}
+      <h2 className={cx('t-h2 mt-3', center && 'mx-auto')}>{title}</h2>
+      {sub && (
+        <p className={cx('t-lead mt-4', center && 'mx-auto')} style={light ? ON_DARK_SECONDARY : undefined}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }

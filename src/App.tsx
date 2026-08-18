@@ -18,7 +18,8 @@ const NotFound = lazy(() => import('./pages/NotFound').then((m) => ({ default: m
 function Spinner() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg">
-      <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      {/* Spec §1.3: circular UI takes --r-full. Raw `rounded-*` is banned in JSX (§14.1). */}
+      <div className="w-8 h-8 rounded-(--r-full) border-4 border-primary border-t-transparent animate-spin" />
     </div>
   );
 }

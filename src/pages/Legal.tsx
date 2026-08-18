@@ -15,19 +15,21 @@ export function Legal({ kind }: { kind: Kind }) {
       <SEO title={`${TITLES[kind]} | ${site.name}`} description={`${TITLES[kind]} for ${site.name}, ${site.town}.`} path={`/${kind}`} />
       <PageHero title={TITLES[kind]} sub={site.name} />
       <section className="section">
-        <div className="container-x max-w-3xl prose-pub space-y-4 text-ink/85 leading-relaxed">
-          {kind === 'privacy' && <Privacy />}
-          {kind === 'terms' && <Terms />}
-          {kind === 'cookies' && <Cookies />}
-          {kind === 'accessibility' && <Accessibility />}
-          <p className="text-sm text-muted pt-6">Last updated: 2026. This policy is provided as part of a website demonstration and should be reviewed by {site.name} before going live.</p>
+        <div className="container-x">
+          <div className="measure t-body space-y-4">
+            {kind === 'privacy' && <Privacy />}
+            {kind === 'terms' && <Terms />}
+            {kind === 'cookies' && <Cookies />}
+            {kind === 'accessibility' && <Accessibility />}
+            <p className="t-small text-muted pt-6">Last updated: {new Date().getFullYear()}. This policy is provided as part of a website demonstration and should be reviewed by {site.name} before going live.</p>
+          </div>
         </div>
       </section>
     </>
   );
 }
 
-const H = ({ children }: { children: React.ReactNode }) => <h2 className="font-headline text-2xl text-ink mt-8 mb-2">{children}</h2>;
+const H = ({ children }: { children: React.ReactNode }) => <h2 className="t-h3 mt-8 mb-2">{children}</h2>;
 
 function Privacy() {
   return (
@@ -40,7 +42,7 @@ function Privacy() {
       <H>Cookies & analytics</H>
       <p>This website uses essential cookies to function and may use optional analytics cookies to understand how visitors use the site. See our Cookie Policy for details.</p>
       <H>Your rights</H>
-      <p>You have the right to access, correct or request deletion of your personal data. To exercise these rights, contact us at <a className="text-primary underline" href={site.email ? `mailto:${site.email}` : site.phoneHref}>{site.email || site.phone}</a>.</p>
+      <p>You have the right to access, correct or request deletion of your personal data. To exercise these rights, contact us at <a className="text-primary underline py-4" href={site.email ? `mailto:${site.email}` : site.phoneHref}>{site.email || site.phone}</a>.</p>
       <H>Contact</H>
       <p>{site.name}, {site.addressLines.join(', ')}, {site.town}, {site.county} {site.postcode}. Tel: {site.phone}.</p>
     </>
@@ -85,7 +87,7 @@ function Accessibility() {
       <H>What we do</H>
       <p>We aim for clear, readable text, sufficient colour contrast, keyboard navigation, descriptive alt text on images, and a layout that works across devices and screen sizes.</p>
       <H>Need help?</H>
-      <p>If you have difficulty using any part of this website, or need information in a different format, please call us on <a className="text-primary underline" href={site.phoneHref}>{site.phone}</a> and we'll be happy to help.</p>
+      <p>If you have difficulty using any part of this website, or need information in a different format, please call us on <a className="text-primary underline py-4" href={site.phoneHref}>{site.phone}</a> and we'll be happy to help.</p>
     </>
   );
 }

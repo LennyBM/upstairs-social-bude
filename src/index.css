@@ -2,87 +2,583 @@
 @import "./styles/fonts.css";
 @import "./brand.css";
 
-/* Cross-Inn design language: warm coastal, Playfair headings, Lora body, gold accents. */
 @theme {
-  --color-primary: var(--brand-primary);
-  --color-accent: var(--brand-accent);
-  --color-ink: var(--brand-ink);
-  --color-bg: var(--brand-bg);
-  --color-surface: var(--brand-surface);
-  --color-contrast: var(--brand-contrast);
-  --color-muted: var(--brand-muted);
-  --color-line: var(--brand-border);
+  /* ── colour ────────────────────────────────────────────────────────── */
+  --color-primary:      var(--brand-primary);
+  --color-cta:          var(--brand-cta);
+  --color-accent:       var(--brand-accent);
+  --color-ink:          var(--brand-ink);
+  --color-bg:           var(--brand-bg);
+  --color-recessed:     var(--brand-recessed);
+  --color-surface:      var(--brand-surface);
+  /* The inverted band. NOT --brand-ink: on a dark venue ink is cream, and using it
+     as a ground rendered a cream footer carrying cream text at 1.0:1. Per site. */
+  --color-footer:       var(--footer-bg);
+  --color-contrast:     var(--brand-contrast);
+  --color-text:         var(--text-primary);
+  --color-secondary:    var(--text-secondary);
+  --color-muted:        var(--text-muted);
+  --color-tertiary:     var(--text-tertiary);
+  --color-line:         var(--line-soft);
+  --color-line-strong:  var(--line-strong);
 
-  --font-body: 'Lora', Georgia, serif;
-  --font-headline: 'Playfair Display', Georgia, serif;
-  --font-ui: 'Source Sans 3', -apple-system, 'Segoe UI', sans-serif;
+  /* ── type. --font-sans MUST be declared or Tailwind keeps system-ui ── */
+  --font-body:    'Inter', 'Inter-Fallback', system-ui, sans-serif;
+  --font-display: 'Newsreader', 'Display-Fallback', Georgia, serif;
+  --font-sans:    var(--font-body);
+
+  /* ── layout ────────────────────────────────────────────────────────── */
+  --container-page: 72rem;
+
+  /* ── radii ─────────────────────────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:  10px;
+  --radius-full: 999px;
+
+  /* ── motion ────────────────────────────────────────────────────────── */
+  --ease-out:   cubic-bezier(.16, 1, .3, 1);
+  --ease-inout: cubic-bezier(.645, .045, .355, 1);
 }
 
+:root {
+  /* ── hairlines, derived from ink so they follow the brand ──────────── */
+  --line-soft:   color-mix(in oklab, var(--brand-ink)  8%, transparent);
+  --line-strong: color-mix(in oklab, var(--brand-ink) 16%, transparent);
+
+  /* ── the one shadow. Two layers, neutral, never brand tinted ───────── */
+  --shadow-float: 0 1px 2px rgba(0,0,0,.06), 0 8px 24px -12px rgba(0,0,0,.24);
+
+  /* ── radii aliases for hand written CSS ────────────────────────────── */
+  --r-sm: 4px; --r-md: 10px; --r-full: 999px;
+
+  /* ── motion ────────────────────────────────────────────────────────── */
+  --dur-fast: 160ms;
+  --dur-ui: 240ms;
+  --dur-reveal: 420ms;
+  --reveal-shift: 8px;
+  --stagger-step: 60ms;
+
+  /* ── layout ────────────────────────────────────────────────────────── */
+  --container: 72rem;
+  --gutter-xs: 1rem;
+  --gutter: 1.5rem;
+  --gutter-lg: 2rem;
+  --section-y: clamp(2.5rem, 6vw, 6rem);
+  --measure-prose: 65ch;
+  --measure-lead: 46ch;
+
+  /* ── uppercase micro tracking. Two values, not five ────────────────── */
+  --tracking-label: 0.1em;
+  --tracking-label-tight: 0.06em;
+
+  /* ── chrome stack ──────────────────────────────────────────────────── */
+  --z-actionbar: 50;
+  --z-consent: 55;
+  --z-header: 60;
+  --z-drawer: 70;
+  --cta-bar-h: 3.5rem;
+
+  /* ── display treatment: default 'inn'. Overridden below ────────────── */
+  --display-family: var(--font-display);
+  --display-weight: 500;
+  --display-track: -0.028em;
+  --display-track-h2: -0.022em;
+}
+
+[data-display="coast"] {
+  --display-family: var(--font-body);
+  --display-weight: 600;
+  --display-track: -0.035em;
+  --display-track-h2: -0.028em;
+}
+
+/* ══ base ═══════════════════════════════════════════════════════════════ */
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
 body {
   background-color: var(--brand-bg);
-  color: var(--brand-ink);
+  color: var(--text-primary);
   font-family: var(--font-body);
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  font-weight: 400;
+  font-size: clamp(1.0625rem, 1.0405rem + 0.094vw, 1.125rem);
+  line-height: 1.6;
+  -webkit-font-smoothing: auto;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  font-optical-sizing: auto;
 }
-h1, h2, h3, h4 { font-family: var(--font-headline); font-weight: 700; line-height: 1.12; letter-spacing: -0.005em; }
-::selection { background: var(--brand-accent); color: #1a140d; }
-:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
-img { max-width: 100%; height: auto; }
 
+/* Light on dark genuinely blooms. Everything else keeps subpixel stems. */
+.on-dark { -webkit-font-smoothing: antialiased; color: var(--text-on-dark); }
+
+/* Tag selectors carry family only. Every metric lives on a .t-* class, so a  */
+/* heading without one is a lint failure, not a silently different heading.   */
+/* These rules are unlayered and would otherwise outrank the components layer.*/
+h1, h2 { font-family: var(--display-family); font-style: normal; }
+h3, h4, h5, h6 { font-family: var(--font-body); font-style: normal; }
+
+p { text-wrap: pretty; }
+img { max-width: 100%; height: auto; }
+::selection { background: var(--brand-accent); color: var(--brand-contrast); }
+:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
+
+/* The current nav item. §1.4 gives it emphasis; it does not get to be gold.     */
+/* --brand-accent measures 3.73:1 on --brand-bg and 3.47:1 on --brand-recessed,  */
+/* which passes AA large and fails the 4.5:1 body floor at the ~15px nav size,   */
+/* on an audience that skews older. Emphasis is carried by weight and a standing */
+/* underline instead, so the state is never signalled by hue alone (WCAG 1.4.1)  */
+/* and no future venue palette has to clear a contrast floor to stay legal.      */
+/* Accent keeps focus rings, hover and the star glyph: non text or transient.    */
+/* Colour is INHERITED, so the item stays white while the header sits over media */
+/* (§9.2) rather than reintroducing dark ink on a dark photograph.               */
+/* Weight 600 is the §2.2 emphasis step, already live; no new weight is added.   */
+/* Unlayered on purpose: it must outrank the Tailwind utilities layer.           */
+a[aria-current="page"]:not(.btn) {
+  color: inherit;
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+/* One underline mechanism at a time. The hover sweep belongs to the items that  */
+/* are not the current page.                                                     */
+.link-underline[aria-current="page"]::after { content: none; }
+
+/* ══ type scale ═════════════════════════════════════════════════════════ */
+/* Clamps computed between 375px and 1440px, so every step is fluid from   */
+/* the first phone width upward.                                          */
 @layer components {
-  .container-x { width: 100%; max-width: 75rem; margin-inline: auto; padding-inline: 1.25rem; }
-  @media (min-width: 768px) { .container-x { padding-inline: 2rem; } }
+  .t-display {
+    font-family: var(--display-family);
+    font-weight: var(--display-weight);
+    font-size: clamp(2.25rem, 1.1056rem + 4.883vw, 5.5rem);   /* 36 -> 88 */
+    letter-spacing: var(--display-track);
+    line-height: 1.02;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .t-h2 {
+    font-family: var(--display-family);
+    font-weight: var(--display-weight);
+    font-size: clamp(1.75rem, 1.2218rem + 2.254vw, 3.25rem);  /* 28 -> 52 */
+    letter-spacing: var(--display-track-h2);
+    line-height: 1.08;
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+  .t-h3 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: clamp(1.375rem, 1.1109rem + 1.127vw, 2.125rem); /* 22 -> 34 */
+    letter-spacing: -0.015em;
+    line-height: 1.18;
+    max-width: 28ch;
+    text-wrap: balance;
+  }
+  .t-h4 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: clamp(1.1875rem, 1.1215rem + 0.282vw, 1.375rem); /* 19 -> 22 */
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .t-lead {
+    font-family: var(--font-body);
+    font-weight: 350;
+    font-size: clamp(1.125rem, 1.081rem + 0.188vw, 1.25rem);   /* 18 -> 20 */
+    letter-spacing: -0.005em;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    max-width: var(--measure-lead);
+  }
+  .t-body {
+    font-size: clamp(1.0625rem, 1.0405rem + 0.094vw, 1.125rem); /* 17 -> 18 */
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+  .t-small   { font-size: 0.9375rem; letter-spacing: .005em; line-height: 1.45; }  /* 15px */
+  .t-caption { font-size: 0.8125rem; letter-spacing: .01em;  line-height: 1.40; }  /* 13px floor */
+
+  .measure      { max-width: var(--measure-prose); }
+  .measure-lead { max-width: var(--measure-lead); }
+
+  /* Prices, times, rates. Nothing in the estate sets this today. */
+  .nums { font-variant-numeric: tabular-nums lining-nums; }
+
+  /* The one manual axis override in the system. See §2.6. */
+  .logotype {
+    font-family: var(--display-family);
+    font-variation-settings: "opsz" 60, "wght" var(--display-weight);
+    letter-spacing: -0.02em;
+  }
 
   .eyebrow {
-    font-family: var(--font-ui);
+    font-family: var(--font-body);
     text-transform: uppercase;
-    letter-spacing: 0.28em;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;              /* 13px floor */
     font-weight: 600;
-    color: var(--brand-accent);
+    letter-spacing: var(--tracking-label);
+    line-height: 1.3;
+    color: var(--text-secondary);      /* not accent. See §1.4 */
   }
 
+  .pullquote {
+    font-family: var(--font-display);
+    font-style: italic;                /* the only italic in the system */
+    font-weight: 400;
+    font-size: clamp(1.375rem, 1.1109rem + 1.127vw, 2.125rem);
+    line-height: 1.28;
+    letter-spacing: -0.012em;
+    max-width: 28ch;
+  }
+
+  /* ══ layout ═════════════════════════════════════════════════════════ */
+  .container-x {
+    width: 100%; max-width: var(--container); margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  @media (max-width: 379px) { .container-x { padding-inline: var(--gutter-xs); } }
+  @media (min-width: 768px) { .container-x { padding-inline: var(--gutter-lg); } }
+
+  .section { padding-block: var(--section-y); }
+  .section-recessed { background: var(--brand-recessed); }
+  .section-rule { border-top: 1px solid var(--line-soft); }
+
+  .grid12 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
+
+  /* §1.7: the mobile form is declared, not inherited. Below 1024px every        */
+  /* archetype slot spans the whole grid, so each archetype resolves to a single */
+  /* column stack in DOM order. That is the case 60 to 80% of this traffic sees, */
+  /* so it is stated first and the asymmetry is the override, not the other way  */
+  /* round. Without this line a slot would auto place into 1 of the 4 mobile     */
+  /* columns and render a quarter width.                                         */
+  .arch-text, .arch-media { grid-column: 1 / -1; }
+
+  /* Archetype B bleeds its media past the right edge of the viewport. The clip  */
+  /* sits on the full width section, so the bleed still reaches the edge and     */
+  /* never becomes a horizontal scrollbar. `clip`, not `hidden`: it creates no   */
+  /* scroll container, so sticky positioning and anchor scrolling are untouched. */
+  .section-bleed { overflow-x: clip; }
+
+  @media (min-width: 1024px) {
+    .grid12 { grid-template-columns: repeat(12, 1fr); gap: var(--gutter-lg); }
+    .arch-anchor  > .arch-text  { grid-column: 1 / 6; }
+    .arch-split   > .arch-text  { grid-column: 1 / 8; }
+    .arch-split   > .arch-media { grid-column: 8 / -1; margin-right: calc(50% - 50vw); }
+    .arch-measure > .arch-text  { grid-column: 3 / 9; }
+    /* Both halves of archetype B sit on the same row. Required, not cosmetic:    */
+    /* §8 declares the mobile form of B as media first, text below, so the media  */
+    /* comes first in the DOM. Auto placement then reads the text's definite      */
+    /* column start (1) as earlier than the cursor and advances a row, which      */
+    /* stacks the 7/5 split into two full rows instead of pairing them. Pinning   */
+    /* the row keeps the mobile DOM order and the desktop composition both right, */
+    /* without an `order` that would desynchronise the focus order.               */
+    .arch-split > .arch-text, .arch-split > .arch-media { grid-row: 1; }
+  }
+
+  /* Horizontal rail. Archetype D. */
+  .rail {
+    display: grid; grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 78%);
+    gap: var(--gutter);
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-inline: var(--gutter); margin-inline: calc(var(--gutter) * -1);
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * { scroll-snap-align: start; }
+  @media (min-width: 1024px) {
+    .rail { grid-auto-columns: minmax(20rem, 32%); padding-inline: 0; margin-inline: 0; }
+  }
+
+  /* ══ surfaces ═══════════════════════════════════════════════════════ */
+  .card {
+    background: var(--brand-surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    box-shadow: none;
+  }
+  .well {
+    background: var(--brand-recessed);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-md);
+  }
+
+  /* Social marks. At rest the row is monochrome so four logos read as one set
+     rather than four competing brands, which is what cheapens a footer. The
+     brand colour is a hover reward. `--net` is set per mark in Social.tsx. */
+  .social-mark {
+    background: color-mix(in oklab, var(--text-on-dark) 8%, transparent);
+    border: 1px solid color-mix(in oklab, var(--text-on-dark) 18%, transparent);
+    color: var(--text-on-dark);
+  }
+  .social-mark:hover {
+    background: var(--net);
+    border-color: var(--net);
+    /* every brand in the set is mid-to-dark enough that white clears AA on it,
+       and WhatsApp/TripAdvisor green take white in their own guidelines too */
+    color: #fff;
+  }
+  .social-mark:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+  }
+  .float { box-shadow: var(--shadow-float); }   /* action bar, drawer, lightbox only */
+
+  /* ══ controls ═══════════════════════════════════════════════════════ */
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    font-family: var(--font-ui); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em;
-    padding: 0.9rem 1.7rem; border-radius: 0.4rem;
-    transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
-    cursor: pointer; text-align: center; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    font-family: var(--font-body);
+    font-size: 1rem; font-weight: 500; letter-spacing: .01em; line-height: 1.2;
+    min-height: 3rem;                /* 48px, iOS floor plus headroom */
+    padding-block: .75rem; padding-inline: 1.75rem;
+    border-radius: var(--r-md);      /* not a pill. See §1.3 */
+    text-align: center; cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-inout),
+                color var(--dur-fast) var(--ease-inout),
+                border-color var(--dur-fast) var(--ease-inout),
+                transform 90ms var(--ease-inout);
   }
-  .btn:hover { transform: translateY(-2px); }
-  .btn-primary { background: var(--brand-accent); color: #1a140d; box-shadow: 0 6px 20px -8px var(--brand-accent); }
-  .btn-primary:hover { box-shadow: 0 12px 30px -8px var(--brand-accent); }
-  .btn-outline { border: 1.5px solid currentColor; color: var(--brand-primary); background: transparent; }
-  .btn-ghost-light { border: 1.5px solid rgba(255,255,255,0.7); color: #fff; background: rgba(255,255,255,0.08); backdrop-filter: blur(4px); }
-  .btn-ghost-light:hover { background: rgba(255,255,255,0.18); }
+  .btn-sm { min-height: 2.75rem; padding-inline: 1.25rem; font-size: .9375rem; }
+  .btn-block { width: 100%; }
 
-  .card { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 0.6rem; overflow: hidden; }
+  .btn-primary { background: var(--brand-cta); color: var(--brand-contrast); border: 1px solid transparent; }
+  /* -ink, not the raw identity colour. --brand-primary is chosen to look right as a
+     FILL; as a 16px label on cream it measured 4.04, 4.12 and 3.16:1 on three sites.
+     The -ink variant is the same colour wherever the fill already clears AA, so 35
+     of 38 render identically. See gen_brand.py inked(). */
+  .btn-outline { background: transparent; color: var(--brand-primary-ink); border: 1px solid var(--line-strong); }
+  /* Derives its colours from --text-on-dark rather than hard coding white, so that
+     the .hero-typographic scope below can flip the whole button to dark ink when the
+     band it sits on is a light brand. */
+  .btn-on-dark { background: color-mix(in oklab, var(--text-on-dark) 12%, transparent);
+                 color: var(--text-on-dark);
+                 border: 1px solid color-mix(in oklab, var(--text-on-dark) 55%, transparent);
+                 backdrop-filter: blur(6px); }
 
-  .section { padding-block: clamp(3.5rem, 7vw, 6.5rem); }
-  .display { font-size: clamp(2.6rem, 6.5vw, 5rem); }
-  .h-section { font-size: clamp(2rem, 4vw, 3.1rem); }
-  .lead { font-size: clamp(1.05rem, 2vw, 1.28rem); color: var(--brand-muted); }
-  .rule { width: 4rem; height: 3px; background: var(--brand-accent); border: 0; border-radius: 2px; }
+  /* Hover physics only where a real pointer exists. Prevents the iOS      */
+  /* latched hover where the button floats after the tap.                  */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover { background: color-mix(in oklab, var(--brand-cta) 88%, #fff); }
+    .btn-outline:hover { border-color: var(--brand-accent-ink); color: var(--brand-accent-ink); }
+    .btn-on-dark:hover { background: color-mix(in oklab, var(--text-on-dark) 22%, transparent); }
+  }
+  .btn:active { transform: scale(.985); }
 
   .link-underline { position: relative; }
-  .link-underline::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1.5px; background: var(--brand-accent); transition: width .25s ease; }
-  .link-underline:hover::after { width: 100%; }
+  .link-underline::after {
+    content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px;
+    background: var(--brand-accent);
+    transition: width var(--dur-fast) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) { .link-underline:hover::after { width: 100%; } }
 
-  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s ease; }
-  .reveal.in { opacity: 1; transform: none; }
+  /* ══ header ═════════════════════════════════════════════════════════ */
+  .site-header {
+    position: fixed; top: 0; inset-inline: 0; z-index: var(--z-header);
+    --header-fg: var(--text-primary);
+    color: var(--header-fg);
+    transition: background-color var(--dur-ui) var(--ease-inout),
+                padding var(--dur-ui) var(--ease-inout);
+  }
+  .site-header[data-scrolled="true"] {
+    background: color-mix(in oklab, var(--brand-bg) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  /* The header is TOLD it is over media. It never infers it. See §9.2. */
+  .site-header[data-over-media="true"] { --header-fg: #fff; }
+  .site-header[data-over-media="true"]::before {
+    content: ''; position: absolute; inset: 0 0 auto 0; height: 6rem; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0));
+  }
+  .site-header[data-over-media="true"][data-scrolled="true"] { --header-fg: var(--text-primary); }
+  .site-header[data-over-media="true"][data-scrolled="true"]::before { display: none; }
 
-  /* Cross-Inn signature trust marquee */
-  .marquee-track { display: inline-flex; gap: 3rem; white-space: nowrap; animation: marquee 32s linear infinite; }
-  .marquee-mask { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .drawer { background: var(--brand-bg); box-shadow: var(--shadow-float); z-index: var(--z-drawer); }
+
+  /* ══ media ══════════════════════════════════════════════════════════ */
+  .media { position: relative; overflow: hidden; }
+  .media-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: var(--focal, 50% 50%);   /* set per image from site.ts */
+  }
+  .media-grade {
+    position: absolute; inset: 0; pointer-events: none;
+    background: var(--grade-colour);
+    mix-blend-mode: multiply;
+    opacity: var(--grade-opacity);
+  }
+  .media-grain {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: .02; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* Bottom 45% of frame, 5 stops. A 2 stop ramp bands over photography. */
+  .media-scrim {
+    position: absolute; inset: 55% 0 0 0; pointer-events: none;
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,0)    0%,
+      rgba(0,0,0,.008) 18%,
+      rgba(0,0,0,.06)  40%,
+      rgba(0,0,0,.20)  68%,
+      rgba(0,0,0,.45) 100%);
+  }
+  /*
+    Archetype E centres its copy, so the hero's bottom-anchored scrim above leaves
+    the eyebrow and the attribution sitting on whatever the photograph happens to
+    be doing there. Measured on the pilot: the pull quote reads well against a dark
+    roofline while "What People Say" and "Rod (Canada) · Booking.com" land on pale
+    sky at 13 and 15px. A scrim that starts at 55% cannot help text at 20%.
+    This one is full height and darkest through the middle band, so the copy has a
+    floor of ground under it whatever the image does. Kept lighter at the edges so
+    the photograph still reads as a photograph rather than a grey panel.
+  */
+  .media-scrim-centre {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,.26)  0%,
+      rgba(0,0,0,.44) 28%,
+      rgba(0,0,0,.44) 72%,
+      rgba(0,0,0,.26) 100%);
+  }
+
+  .hero { position: relative; min-height: 62svh; display: flex; align-items: flex-end; }
+  .hero > .container-x { padding-block: 2.5rem; }
+  @media (min-width: 768px) {
+    .hero { min-height: 76svh; }
+    .hero > .container-x { padding-block: 4rem; }
+  }
+  /* ── the identity band, shared by the two heroes that fill with the brand ──
+     Both .hero-typographic and .hero-split ground themselves in --brand-primary
+     and then render on-dark roles over it. That assumes the brand colour is dark.
+     Sixteen of the 38 use one of these heroes and three of those brands are amber,
+     where the assumption gives cream on gold at 2.05:1.
+
+     Two defects are fixed here, and both are fixed by SCOPING tokens rather than
+     by touching a single component, so every descendant inherits the correction:
+
+     1. text polarity. --text-on-* is re-pointed at the --text-on-primary trio,
+        which gen_brand.py derives against this exact ground. On the 30 sites with
+        a dark brand the trio resolves to the same whites and the band is unchanged.
+
+     2. the invisible CTA. --brand-cta equals --brand-primary, so .btn-primary
+        rendered a primary fill on a primary band with a transparent border: a
+        button the same colour as the thing behind it, legible only by its label.
+        Inside the band the CTA inverts to a solid chip of the on-primary colour
+        with the band colour as its label, which is both visible and the stronger
+        composition. */
+  .hero-typographic,
+  .hero-split {
+    --text-on-dark:           var(--text-on-primary);
+    --text-on-dark-secondary: var(--text-on-primary-secondary);
+    --text-on-dark-muted:     var(--text-on-primary-muted);
+    --brand-cta:              var(--text-on-primary);
+    --brand-contrast:         var(--brand-primary);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    /* The unscoped hover mixes the fill toward white, which is a no-op once the
+       fill IS white. On the band it moves toward the band instead. */
+    .hero-typographic .btn-primary:hover,
+    .hero-split .btn-primary:hover {
+      background: color-mix(in oklab, var(--brand-cta) 86%, var(--brand-primary));
+    }
+  }
+
+  /* The no photo route. Beats a bad photo every time. See §10 item 4. */
+  .hero-typographic {
+    background: var(--brand-primary);
+    color: var(--text-on-dark);
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  /* §11 hero: 'split'. §8 archetype B applied to the hero — 7/5 asymmetric with
+     the media bleeding off the right edge from 1024px, media above text on
+     mobile. Composition only: the archetype's spans, the bleed and the row
+     pinning all come from the shared .arch-split rules above, so B behaves
+     identically in the hero and in a section and there is no second definition
+     of the asymmetry to drift.
+
+     --brand-primary is the §3 structural brand band, and here it is load
+     bearing rather than decorative. At 1024px and above the left half of the
+     fixed header sits over the TEXT column, not over the photograph, so the
+     §9.2 contract (`data-over-media="true"` → `--header-fg: #fff`) needs a dark
+     ground across the whole header width; on --brand-bg it would reintroduce
+     exactly the low-contrast logotype §9.2 was written to delete. */
+  .hero-split {
+    background: var(--brand-primary);
+    color: var(--text-on-dark);
+    border-bottom: 1px solid var(--line-strong);
+    /* The archetype B bleed, clipped at the hero the way .section-bleed clips it
+       at a section: the media still reaches the viewport edge and can never
+       become a horizontal scrollbar. `clip`, not `hidden`: no scroll container,
+       so sticky positioning and anchor scrolling are untouched. */
+    overflow-x: clip;
+  }
+  @media (min-width: 1024px) {
+    /* The grid carries the hero height rather than the copy, so the media can
+       fill the band instead of floating in it. Below 1024px .hero keeps its
+       flex-end anchoring and the grid is a single content-sized column, which
+       is the declared mobile form (§1.7). */
+    .hero-split { align-items: stretch; }
+    .hero-split > .container-x { align-content: stretch; }
+    .hero-split > .container-x > .arch-text { align-self: center; }
+    .hero-split > .container-x > .arch-media { align-self: stretch; display: flex; }
+    .hero-split > .container-x > .arch-media > .media { flex: 1; }
+  }
+
+  /* ══ bottom chrome stack ════════════════════════════════════════════ */
+  .action-bar {
+    position: fixed; bottom: 0; inset-inline: 0; z-index: var(--z-actionbar);
+    display: flex; min-height: var(--cta-bar-h);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: var(--shadow-float);
+  }
+  .action-bar > * {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    min-height: var(--cta-bar-h);
+    font-weight: 500; font-size: 1rem;
+    color: var(--brand-contrast);
+  }
+  .action-bar > .act-call  { background: var(--brand-cta); }
+  .action-bar > .act-book  { background: color-mix(in oklab, var(--brand-cta) 82%, #000); }
+  .action-bar > .act-chat  { background: color-mix(in oklab, var(--brand-cta) 70%, #000); flex: 0 0 3.5rem; }
+  @media (min-width: 1024px) { .action-bar { display: none; } }
+
+  .consent {
+    position: fixed; inset-inline: 0; z-index: var(--z-consent);
+    bottom: calc(var(--cta-bar-h) + env(safe-area-inset-bottom) + .75rem);
+    padding-inline: var(--gutter);
+  }
+  @media (min-width: 1024px) { .consent { bottom: 1rem; } }
+
+  .notice {
+    background: var(--brand-recessed);
+    border-bottom: 1px solid var(--line-strong);
+    font-size: .9375rem; line-height: 1.4;
+    padding-block: .625rem;
+  }
+
+  /* ══ reveal ═════════════════════════════════════════════════════════ */
+  /* Visible by default. Only a page that has run JS may hide content.    */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift));
+    transition: opacity var(--dur-reveal) var(--ease-out),
+                transform var(--dur-reveal) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .js .reveal.in { opacity: 1; transform: none; }
+  /* Nothing in the first viewport, no CTA, no phone number, no hours. */
+  .js .reveal.no-anim, .js .hero .reveal { opacity: 1; transform: none; transition: none; }
 }
 
+/* ══ reduced motion ═══════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1 !important; transform: none !important; transition: none; }
-  .btn:hover { transform: none; }
-  .marquee-track { animation: none; }
+  .js .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .btn:active { transform: none; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

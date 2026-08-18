@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:design": "node scripts/lint-design.mjs",
+    "images": "node scripts/optimise-images.mjs",
+    "lint:images": "node scripts/optimise-images.mjs --check",
+    "check:estate": "node scripts/check-estate.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -27,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.2.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
